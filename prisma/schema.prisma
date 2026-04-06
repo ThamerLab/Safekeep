@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  role          Role      @default(USER)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  products      Product[]
+  sessions      Session[]
+  accounts      Account[]
+  notifications Notification[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  @@unique([identifier, token])
+}
+
+model Product {
+  id           String    @id @default(cuid())
+  userId       String
+  name         String
+  category     Category  @default(OTHER)
+  store        String?
+  purchaseDate DateTime
+  price        Float?
+  serialNumber String?
+  notes        String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  warranty  Warranty?
+  documents Document[]
+}
+
+model Warranty {
+  id             String         @id @default(cuid())
+  productId      String         @unique
+  durationMonths Int
+  startDate      DateTime
+  endDate        DateTime
+  status         WarrantyStatus @default(ACTIVE)
+  notes          String?        @db.Text
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Document {
+  id        String       @id @default(cuid())
+  productId String
+  name      String
+  fileUrl   String
+  fileKey   String
+  fileType  String
+  fileSize  Int
+  docType   DocumentType @default(RECEIPT)
+  ocrData   Json?
+  createdAt DateTime     @default(now())
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  title     String
+  message   String           @db.Text
+  type      NotificationType @default(WARRANTY_EXPIRY)
+  isRead    Boolean          @default(false)
+  productId String?
+  createdAt DateTime         @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Role { USER ADMIN }
+enum Category { ELECTRONICS APPLIANCES FURNITURE CLOTHING AUTOMOTIVE TOOLS SPORTS HEALTH OTHER }
+enum WarrantyStatus { ACTIVE EXPIRING_SOON EXPIRED }
+enum DocumentType { RECEIPT WARRANTY_CARD MANUAL OTHER }
+enum NotificationType { WARRANTY_EXPIRY SYSTEM }
