@@ -28,7 +28,7 @@
 ## 🚀 تشغيل سريع
 
 ```bash
-git clone https://github.com/yourname/safekeep.git
+git clone https://github.com/ThamerLab/Safekeep
 cd safekeep
 npm install
 cp .env.example .env
