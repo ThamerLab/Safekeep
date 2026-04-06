@@ -4,7 +4,7 @@
 
 ```bash
 # استنساخ المشروع
-git clone https://github.com/yourname/safekeep.git
+git clone https://github.com/ThamerLab/Safekeep
 cd safekeep
 
 # تثبيت الحزم
