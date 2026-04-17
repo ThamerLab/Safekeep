@@ -2,14 +2,15 @@
 
 import type { FormEvent } from 'react'
 import { useState } from 'react'
+import Link from 'next/link'
 import { ShieldCheck, Sparkles } from 'lucide-react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('admin@safekeep.app')
-  const [password, setPassword] = useState('Admin@2025')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -27,7 +28,7 @@ export default function LoginPage() {
     setLoading(false)
 
     if (result?.error) {
-      setError('تعذر تسجيل الدخول. تأكد من تهيئة البيانات التجريبية أو أن الحساب صحيح.')
+      setError('تعذر تسجيل الدخول. تأكد من البريد وكلمة المرور.')
       return
     }
 
@@ -102,7 +103,10 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-4 rounded-2xl border border-slate-200 bg-white/80 px-4 py-4 text-sm text-slate-600">
-            للتجربة السريعة: استخدم الحساب التجريبي الحالي ثم عدّل الإعدادات من لوحة التحكم.
+            لا تملك حسابًا بعد؟
+            <Link className="mr-2 font-bold text-slate-950 underline underline-offset-4" href="/auth/register">
+              أنشئ مساحة عمل جديدة
+            </Link>
           </div>
         </div>
       </div>
