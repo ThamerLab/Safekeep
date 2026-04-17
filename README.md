@@ -78,6 +78,19 @@ safekeep/
 
 راجع [DEPLOYMENT.md](DEPLOYMENT.md) للحصول على التعليمات الكاملة.
 
+### النشر عبر Portainer
+
+إذا كنت ستنشر التطبيق عبر Portainer:
+
+1. ارفع المشروع الكامل إلى الخادم.
+2. تأكد أن جميع ملفات `src/components` و `src/lib` و `src/app/layout.tsx` و `src/app/page.tsx` موجودة.
+3. أنشئ Stack جديداً في Portainer باستخدام ملف `docker-compose.yml`.
+4. أضف متغيرات البيئة الموجودة في `.env.example`.
+5. اضبط `NEXTAUTH_URL` على دومينك الحقيقي مثل `https://safekeeper.t4mer.com`.
+6. شغّل الـ Stack ثم تحقق من سجلات الحاوية للتأكد أن `prisma migrate deploy` اكتمل بنجاح.
+
+راجع أيضاً [PORTAINER.md](PORTAINER.md) للحصول على خطوات Portainer بالتفصيل.
+
 ## 📄 الرخصة
 
 MIT — مفتوح المصدر بالكامل
