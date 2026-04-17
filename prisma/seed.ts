@@ -2,38 +2,39 @@ import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
+const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@safekeep.app'
+const adminPasswordPlain = process.env.SEED_ADMIN_PASSWORD || 'Admin@2025'
+const demoEmail = process.env.SEED_DEMO_EMAIL || 'demo@safekeep.app'
+const demoPasswordPlain = process.env.SEED_DEMO_PASSWORD || 'User@2025'
 
 async function main() {
   console.log('🌱 Seeding database...')
 
-  const adminPassword = await bcrypt.hash('Admin@2025', 12)
-  const userPassword = await bcrypt.hash('User@2025', 12)
+  const adminPassword = await bcrypt.hash(adminPasswordPlain, 12)
+  const userPassword = await bcrypt.hash(demoPasswordPlain, 12)
 
-  // Admin
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@safekeep.app' },
+  await prisma.user.upsert({
+    where: { email: adminEmail },
     update: {},
     create: {
       name: 'مدير النظام',
-      email: 'admin@safekeep.app',
+      email: adminEmail,
       password: adminPassword,
       role: 'ADMIN',
     },
   })
 
-  // Demo User
   const user = await prisma.user.upsert({
-    where: { email: 'demo@safekeep.app' },
+    where: { email: demoEmail },
     update: {},
     create: {
       name: 'أحمد محمد',
-      email: 'demo@safekeep.app',
+      email: demoEmail,
       password: userPassword,
       role: 'USER',
     },
   })
 
-  // Sample Products
   const products = [
     {
       name: 'آيفون 15 برو ماكس',
@@ -88,8 +89,8 @@ async function main() {
   }
 
   console.log('✅ Seed completed!')
-  console.log('👤 Admin: admin@safekeep.app / Admin@2025')
-  console.log('👤 Demo:  demo@safekeep.app  / User@2025')
+  console.log(`👤 Admin: ${adminEmail} / ${adminPasswordPlain}`)
+  console.log(`👤 Demo:  ${demoEmail} / ${demoPasswordPlain}`)
 }
 
 main().finally(() => prisma.$disconnect())
