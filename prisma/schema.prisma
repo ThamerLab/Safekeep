@@ -39,6 +39,7 @@ model Account {
   id_token          String? @db.Text
   session_state     String?
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([provider, providerAccountId])
 }
 
@@ -54,6 +55,7 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
+
   @@unique([identifier, token])
 }
 
@@ -85,7 +87,7 @@ model Warranty {
   notes          String?        @db.Text
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product        Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Document {
@@ -99,7 +101,7 @@ model Document {
   docType   DocumentType @default(RECEIPT)
   ocrData   Json?
   createdAt DateTime     @default(now())
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Notification {
@@ -111,11 +113,40 @@ model Notification {
   isRead    Boolean          @default(false)
   productId String?
   createdAt DateTime         @default(now())
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-enum Role { USER ADMIN }
-enum Category { ELECTRONICS APPLIANCES FURNITURE CLOTHING AUTOMOTIVE TOOLS SPORTS HEALTH OTHER }
-enum WarrantyStatus { ACTIVE EXPIRING_SOON EXPIRED }
-enum DocumentType { RECEIPT WARRANTY_CARD MANUAL OTHER }
-enum NotificationType { WARRANTY_EXPIRY SYSTEM }
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Category {
+  ELECTRONICS
+  APPLIANCES
+  FURNITURE
+  CLOTHING
+  AUTOMOTIVE
+  TOOLS
+  SPORTS
+  HEALTH
+  OTHER
+}
+
+enum WarrantyStatus {
+  ACTIVE
+  EXPIRING_SOON
+  EXPIRED
+}
+
+enum DocumentType {
+  RECEIPT
+  WARRANTY_CARD
+  MANUAL
+  OTHER
+}
+
+enum NotificationType {
+  WARRANTY_EXPIRY
+  SYSTEM
+}
