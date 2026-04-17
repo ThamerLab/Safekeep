@@ -36,6 +36,53 @@ docker-compose exec app npx prisma migrate deploy
 docker-compose exec app npx prisma db seed
 ```
 
+## 2.1 النشر عبر Portainer
+
+### قبل البدء
+
+1. ارفع المشروع الكامل إلى السيرفر، وليس فقط الملفات الجزئية.
+2. تأكد من وجود الملفات التالية داخل المشروع:
+   - `src/components`
+   - `src/lib`
+   - `src/app/layout.tsx`
+   - `src/app/page.tsx`
+3. جهز الدومين الذي سيعمل عليه التطبيق.
+4. فعّل SSL إذا أمكن، ويفضل استخدام `https` مع NextAuth.
+
+### خطوات Portainer
+
+1. افتح Portainer.
+2. اذهب إلى `Stacks`.
+3. اضغط `Add stack`.
+4. اختر اسماً مثل `safekeep`.
+5. الصق محتوى `docker-compose.yml` في خانة الـ Web editor أو ارفع الملف.
+6. في قسم المتغيرات أضف القيم الموجودة في `.env.example`.
+7. اضبط القيم التالية قبل النشر:
+   - `NEXTAUTH_URL=https://safekeeper.t4mer.com`
+   - `POSTGRES_PASSWORD` بكلمة مرور قوية
+   - `NEXTAUTH_SECRET` بمفتاح عشوائي طويل
+   - مفاتيح `AWS_*` إذا كنت ستستخدم رفع الملفات إلى S3
+8. اضغط `Deploy the stack`.
+
+### بعد النشر
+
+1. افتح Logs الخاصة بخدمة `app`.
+2. تأكد من عدم وجود أخطاء أثناء `prisma migrate deploy`.
+3. تأكد أن التطبيق أصبح متاحاً على الدومين.
+4. إذا كنت تستخدم Reverse Proxy مثل Nginx Proxy Manager، وجّهه إلى المنفذ `3000`.
+5. إذا أردت الحسابات التجريبية بعد نجاح التشغيل، نفّذ:
+
+```bash
+docker compose exec app npx prisma db seed
+```
+
+### ملاحظات مهمة
+
+- لا تستخدم `http://localhost:3000` في `NEXTAUTH_URL` على السيرفر.
+- يفضل استخدام `https://safekeeper.t4mer.com` بدلاً من `http://safekeeper.t4mer.com`.
+- إذا لم تكن تستخدم OCR الآن، اترك `GOOGLE_CREDENTIALS_JSON` فارغاً.
+- إذا لم تكن تحتاج البريد الإلكتروني حالياً، يمكنك ترك إعدادات SMTP فارغة.
+
 ## 3. متغيرات البيئة
 
 | المتغير | الوصف | مطلوب |
