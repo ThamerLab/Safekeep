@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
+import { z } from 'zod'
+
+import { env } from '@/lib/env'
 import { prisma } from '@/lib/prisma'
 import { sendWelcomeEmail } from '@/lib/email'
 
+const registerSchema = z.object({
+  name: z.string().trim().min(2).max(80),
+  email: z.string().trim().email(),
+  password: z.string().min(8).max(128),
+})
+
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password } = await req.json()
-
-    if (!name || !email || !password) {
-      return NextResponse.json({ error: 'جميع الحقول مطلوبة' }, { status: 400 })
+    const parsed = registerSchema.safeParse(await req.json())
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'البيانات المدخلة غير صالحة' }, { status: 400 })
     }
 
-    if (password.length < 8) {
-      return NextResponse.json({ error: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' }, { status: 400 })
-    }
+    const { name, email, password } = parsed.data
 
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } })
     if (existing) {
@@ -22,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     const userCount = await prisma.user.count()
     const isFirstUser = userCount === 0
-    const isAdminEmail = process.env.ADMIN_EMAIL && email.toLowerCase() === process.env.ADMIN_EMAIL.toLowerCase()
+    const isAdminEmail = env.ADMIN_EMAIL && email.toLowerCase() === env.ADMIN_EMAIL.toLowerCase()
 
     const hashedPassword = await bcrypt.hash(password, 12)
 
@@ -35,7 +41,6 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Send welcome email (non-blocking)
     sendWelcomeEmail(user.email, user.name || 'عزيزي العميل').catch(console.error)
 
     return NextResponse.json({ message: 'تم إنشاء الحساب بنجاح', userId: user.id }, { status: 201 })
