@@ -11,21 +11,12 @@ The deployment files in this folder are now closer to a Portainer-ready setup:
 
 ## Important Blocker
 
-This archive still looks incomplete and may not build successfully yet.
-
-Missing items from this extracted package include:
-
-- `src/components`
-- `src/lib`
-- `src/app/layout.tsx`
-- `src/app/page.tsx`
-
-Several existing files import code from those paths, so restore the full source tree before deploying.
+The previously listed source files are now present on the default branch. However, their presence alone does **not** guarantee that a fresh Docker image builds and starts successfully. Treat this deployment as unverified until you run the full build and authenticate successfully.
 
 ## Portainer Steps
 
 1. Upload the full project folder to your server.
-2. Make sure the missing source files listed above are present.
+2. Verify the repository is fully checked out, and that a local Docker build succeeds.
 3. Copy values from `.env.example` into Portainer environment variables.
 4. In Portainer, deploy the stack using `docker-compose.yml`.
 5. After the first startup, confirm the app container completed `prisma migrate deploy`.
@@ -42,4 +33,4 @@ Several existing files import code from those paths, so restore the full source 
 ## Notes
 
 - If you use a reverse proxy such as Nginx Proxy Manager, point it to the app service port.
-- If you want seeded demo accounts, run `npx prisma db seed` manually inside the app container after the stack is healthy.
+- **Avoid seeded demo accounts on public or shared servers.** If you intentionally need seed data, set unique `SEED_ADMIN_PASSWORD` and `SEED_DEMO_PASSWORD`, review `prisma/seed.ts`, and only then run the seed command.
